@@ -1,8 +1,10 @@
 // 着火点となる要素
 const paragraphs = document.querySelectorAll<HTMLInputElement>(".paragraph");
+// グラデーションさせる要素
+const heading = document.querySelectorAll<HTMLInputElement>(".heading");
 
-// threshold の設定
-const buildThresholdList = () => {
+// threshold の設定(交差感知の割合の数)
+const buildThresholdList = (): Array<number> => {
   let thresholds = [];
   let numSteps = 20;
 
@@ -15,21 +17,29 @@ const buildThresholdList = () => {
 
 /**
 * threshold
-* 関数を実行するタイミングを 0〜1 で記述。ターゲットとなる要素が見え始めた瞬間と見え終わりの瞬間が 0、半分通過したときは 0.5、すべて見えている状態が 1。その場合は交差量が 0、50％、100％の時にコールバック関数が呼ばれます。default = 0
-*
+* 関数を実行するタイミングを 0〜1 で記述。
+* ターゲットとなる要素が見え始めた瞬間と見え終わりの瞬間が 0、半分通過したときは 0.5、すべて見えている状態が 1。
+* その場合は交差量が 0、50％、100％の時にコールバック関数が呼ばれます。
+* default = 0
 */
 const options = {
   threshold: buildThresholdList()
 };
+// console.log(options);
 
-// 要素が表示されたら実行する動作
-const showElements = (entries) => {
+
+/**
+* showElements
+* 要素が表示されたら実行
+* @param {entries}
+*
+*/
+const showElements = (entries): void => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
       let ratio = Math.round(entry.intersectionRatio * 100); //パーセンテージに変換
       console.log("ratio🍓: ", ratio + "%");
 
-      const heading = document.querySelectorAll<HTMLInputElement>(".heading");
       heading.forEach(elem => {
         elem.style.backgroundImage = `
         linear-gradient(
@@ -43,7 +53,7 @@ const showElements = (entries) => {
   });
 }
 
-// IntersectionObserver 実行
+// create instance
 const observer = new IntersectionObserver(showElements, options);
 
 // 各 .paragraph に到達したら発動。
