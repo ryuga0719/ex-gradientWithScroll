@@ -32,6 +32,10 @@ const rename = require("gulp-rename");
 const data = require("gulp-data");
 const fs = require("fs");
 
+const typescript = require("gulp-typescript");
+
+const htmlBeautify = require("gulp-html-beautify");
+
 /*
 	Define Tasks
 */
@@ -52,7 +56,18 @@ const taskPug = () => {
 
 // index.htmlのコピー
 const copyHtml = () => {
-  return gulp.src(["./index.html"]).pipe(gulp.dest("../dist"));
+  return gulp
+    .src(["./index.html"])
+    .pipe(
+      htmlBeautify({
+        indent_size: 2,
+        indent_char: " ",
+        max_preserve_newlines: 0,
+        preserve_newlines: false,
+        extra_liners: [],
+      })
+    )
+    .pipe(gulp.dest("../dist"));
 };
 
 // ejsのコンパイル
@@ -78,7 +93,7 @@ const taskSass = () => {
   const plugin = [mqPacker(), cssDeclSort({ order: "smacss" }), stylelint()];
 
   return gulp
-    .src(["./scss/**/*.scss", "!" + "./scss/**/_*.scss"])
+    .src(["./assets/scss/**/*.scss", "!" + "./assets/scss/**/_*.scss"])
     .pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
     .pipe(sourceMaps.init())
     .pipe(
@@ -101,7 +116,7 @@ const taskSass = () => {
 // JavaScriptのトランスパイル
 const taskBabel = () => {
   return gulp
-    .src("./js/**/*.js")
+    .src("./assets/js/**/*.js")
     .pipe(
       babel({
         presets: ["@babel/env"],
@@ -110,9 +125,13 @@ const taskBabel = () => {
     .pipe(gulp.dest("../dist/assets/js"));
 };
 
+const taskTypeScript = () => {
+  return gulp.src("./assets/ts/common.ts").pipe(typescript()).js.pipe(gulp.dest("../dist/assets/js"));
+};
+
 // 画像の圧縮(jpg, png)
 const taskImage = () => {
-  const srcGlob = "./img/*.+(jpg|jpeg|png|svg)";
+  const srcGlob = "./assets/img/*.+(jpg|jpeg|png|svg)";
   const dstGlob = "../dist/assets/img";
   return gulp
     .src(srcGlob)
@@ -139,15 +158,19 @@ const taskWatchEjs = () => {
 };
 
 const taskWatchSass = () => {
-  gulp.watch(["./scss/**/*.scss"], gulp.series(taskSass, taskReload));
+  gulp.watch(["./assets/scss/**/*.scss"], gulp.series(taskSass, taskReload));
 };
 
 const taskWatchBabel = () => {
-  gulp.watch(["./js/**/*.js"], gulp.series(taskBabel, taskReload));
+  gulp.watch(["./assets/js/**/*.js"], gulp.series(taskBabel, taskReload));
+};
+
+const taskWatchTypeScript = () => {
+  gulp.watch(["./assets/ts/**/*.ts"], gulp.series(taskTypeScript, taskReload));
 };
 
 const taskWatchImage = () => {
-  gulp.watch(["./img/**/*.+(jpg|jpeg|png)"], gulp.series(taskImage, taskReload));
+  gulp.watch(["./assets/img/**/*.+(jpg|jpeg|png)"], gulp.series(taskImage, taskReload));
 };
 
 const taskWatchIndex = () => {
@@ -175,10 +198,11 @@ exports.default = gulp.parallel(
   taskServerStart,
   taskWatchSass,
   // taskWatchPug,
-  taskWatchEjs,
+  // taskWatchEjs,
   taskWatchImage,
-  // taskWatchIndex,
-  taskWatchBabel
+  taskWatchIndex,
+  taskWatchTypeScript
+  // taskWatchBabel
 );
 
 // 画像の圧縮単体タスク

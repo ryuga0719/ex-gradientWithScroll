@@ -1,1 +1,33 @@
-@import url(./generic/_reboot.scss);
+/** @format */
+
+@import "./generic/_reboot";
+
+body {
+  background-color: #000;
+  padding: 100vh 1rem;
+}
+
+.heading {
+  background-image: linear-gradient(45deg, rgb(37, 47, 255) 0%, rgb(124, 192, 226) 100%, rgb(37, 47, 255) 200%);
+  font-size: 4rem;
+  font-weight: bold;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  margin: 24px 0;
+}
+.paragraph {
+  font-size: 21px;
+  color: #a1a1a6;
+  line-height: 1.4;
+}
+
+.subHeading {
+  display: block;
+  color: #fff;
+}
+
+.block {
+  margin-bottom: 48px;
+}
